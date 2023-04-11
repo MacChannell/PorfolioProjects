@@ -1,0 +1,105 @@
+In this set of data I am using Sales Tables from Customers in Jan, Feb, March, April, and May. I will be showing the proceess of how to manipulate the data in SQLLite for Various Questions.
+--#1 How many orders were placed in January? 
+
+SELECT COUNT(ORDERID)  
+From BIT_DB.JanSales
+
+--#2 How many of those orders were for an iPhone?
+
+SELECT Count(ORDERID)
+FROM BIT_DB.JanSales
+WHERE Product = 'iPhone'
+And Length (ORDERID)=6
+
+
+--#3a Select the customer account numbers for all the orders that were placed in February.
+SELECT  acctnum
+FROM BIT_DB.customers AS cust 
+
+INNER JOIN BIT_DB.FebSales AS Feb
+ON cust.order_id = Feb.orderid
+WHERE LENGTH(orderid) = 6
+
+--#3b Count the customer account numbers for all the orders that were placed in February.
+
+SELECT Count(acctnum)
+FROM BIT_DB.customers AS cust 
+
+INNER JOIN BIT_DB.FebSales AS Feb
+ON cust.order_id = Feb.orderid
+WHERE LENGTH(orderid) = 6
+
+
+--#4 Which product was the cheapest one sold in January, and what was the price?
+
+Select Product, price
+From BIT_DB.JAnSales
+Where price in(Select min(price) From BIT_DB.JanSales)
+
+--#5 What is the total revenue for each product sold in January? 
+
+Select 
+product,
+Sum(Quantity)*Price as Revenue
+From BIT_DB.JanSales
+Group By product
+Order By Revenue desc
+
+--#6 Which products were sold in February at 548 Lincoln St, Seattle, WA 98101, how many of each were sold, and what was the total revenue? 
+
+Select  Product ,Price, Quantity,  Quantity*price as Revenue
+From BIT_DB.FebSales
+Where location = '548 Lincoln St, Seattle, WA 98101'
+Group By Product
+
+--#7 How many customers ordered more than 2 products at a time in February, and what was the average amount spent for those customers?
+
+Select count(distinct cust.acctnum),
+avg(quantity*price)
+From BIT_DB.FebSales as Feb
+Left Join BIT_DB.customers as cust
+on Feb.orderid = cust.order_id
+Where Feb.Quantity>2
+And length (orderid) = 6
+
+----------------------------------
+-- #1 Locating Sales between 02/13-02/18 of 2019
+Select orderdate
+From BIT_DB.FebSales
+Where orderdate between '02/13/19 00:00' AND '02/18/19 00:00'
+
+--#2 Locating the Address which was placed at a particulat time (02/18/19 01:35)
+
+Select Location, product, price
+From BIT_DB.FebSales
+Where orderdate = '02/18/19 01:35'
+
+--#3 How Many items were sold on 02/18/19
+
+Select sum(quantity)
+From BIT_DB.FebSales
+Where orderdate like '02/18/19%'
+
+-- #4 Show the Items sold as individual Purchases
+Select product, quantity, price
+From BIT_DB.FebSales
+Where orderdate like '02/18/19%'
+Order by product
+
+--#5 Show Products sold in Bulk and The Revenue from the Products Sold on02/18/19
+Select distinct product,
+(product*quantity) as BulkSoldProduct,
+Quantity*price as Revenue
+From BIT_DB.FebSales
+Where orderdate like '02/18/19%'
+Order by BulkSoldProduct Desc
+
+-- #6 Using '%Product_Search_As_Like%' to find Products with similar name 
+Select distinct Product
+From BIT_DB.FebSales
+Where Product like '%Batteries%'
+
+--#7 Using '%Price_Search_By_ ( .99 cent)_ By_Product
+Select distinct Product, Price
+From BIT_DB.FebSales
+Where Price like '%.99'
