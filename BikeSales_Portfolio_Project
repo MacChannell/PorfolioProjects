@@ -1,0 +1,40 @@
+
+
+SELECT
+	sales.orders.order_id,
+	CONCAT(sales.customers.first_name,'  ',sales.customers.last_name)AS "customers",
+	sales.customers.city,
+	sales.customers.state,
+	sales.orders.order_date,
+	
+	SUM(sales.order_items.quantity) AS "total_units",
+	SUM(sales.order_items.quantity * sales.order_items.list_price) AS "revenue",
+	pro.product_name,
+	cat.category_name,
+	sto.store_name,
+	CONCAT(sta.first_name, ' ', sta.last_name) AS "sales_rep"
+
+FROM
+	sales.customers
+Join sales.orders
+	ON customers.customer_id = orders.customer_id
+Join sales.order_items
+	ON orders.order_id = order_items.order_id
+Join production.products pro
+	ON sales.order_items.product_id =pro.product_id
+Join production.categories cat
+	ON pro.category_id =cat.category_id
+Join sales.stores sto
+	ON orders.store_id =sto.store_id
+Join sales.staffs sta
+	ON orders.staff_id = sta.staff_id
+Group BY
+	sales.orders.order_id,
+	CONCAT(sales.customers.first_name,'  ',sales.customers.last_name),
+	sales.customers.city,
+	sales.customers.state,
+	sales.orders.order_date,
+	pro.product_name,
+	cat.category_name,
+	sto.store_name,
+	CONCAT(sta.first_name, ' ', sta.last_name) 
